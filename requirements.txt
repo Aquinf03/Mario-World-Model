@@ -1,0 +1,28 @@
+# Emulator stack — each pin found by a real failure, not caution:
+#   numpy<2      nes-py's _rom.py does uint8 * 2**10, which overflows under
+#                NumPy 2's NEP-50 scalar promotion (OverflowError)
+#   gym==0.25.2  0.26 switched step() to a 5-tuple; nes-py returns 4
+#   nes-py 8.2.1 the version that builds against the above
+numpy<2
+gym==0.25.2
+nes-py==8.2.1
+gym-super-mario-bros==7.4.0
+opencv-python-headless
+tqdm
+
+# Model
+torch>=2.2
+timm>=1.0
+
+# PPO explorer (src/dataset/ppo.py bridges nes-py's 4-tuple to SB3's gymnasium 5-tuple,
+# which is less fragile than pinning stable-baselines3 back to 1.6.x)
+gymnasium
+stable-baselines3
+
+# Compute + interpretability
+modal
+aquin
+
+# Tests
+pytest
+PyYAML

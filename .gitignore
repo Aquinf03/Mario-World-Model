@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+artifacts/
+jobs/
+sandbox/
+*.pt
+*.npz
+
+# reports are kept; scratch is not
+.DS_Store
+.pytest_cache/
+.venv/
+dump/
+
+# generated gifs from runs, not the curated demo
+artifacts/*.gif

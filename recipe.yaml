@@ -1,0 +1,77 @@
+# AQ-Mario — JEPA world model for Super Mario Bros 1-1.
+#
+# `method: jepa` is implemented by src/algo/jepa.py.
+#
+# eval.min_score is the fail-closed gate: engine/step.py:do_eval computes
+# all_pass against it. That is the "catch it at epoch 2" behaviour — native,
+# not something bolted on.
+#
+# EVERY VALUE BELOW IS THE MEASURED ONE. An earlier version of this file kept
+# the original plan's guesses while the experiments moved on, and 9 of 10
+# settings had drifted — including sigreg_lambda 0.1, which is the value the
+# dry-run grid showed collapses the latent to rank 2. A recipe that disagrees
+# with the code is worse than no recipe: it is a confident wrong answer about
+# what was run.
+family: jepa
+method: jepa
+
+# --- what to fit -------------------------------------------------------------
+variant: aux                # pure | aux   (aq fork + aq diff to compare)
+                            # MEASURED: pure gives y-probe -0.383, aux 0.796.
+                            # A pure JEPA on this recipe does not find y at all.
+latent_dim: 192
+encoder: vit_tiny_patch14
+predictor_layers: 6         # -> 9.8M params total, under the 15M the plan assumed
+history_len: 3
+pred_horizon: 5             # 5, not 3: mse_5step/gain_5step are the LeMario
+                            # comparison and are unmeasurable at horizon 3
+frame_skip: 2
+epochs: 3                   # 38.1k steps at batch 96, ~1.8 h on an H100, and
+                            # 9.5x the 4,000-step probe run every current number
+                            # comes from. Halved from 6 deliberately: the
+                            # per-epoch gate reports a y-probe TRAJECTORY, and a
+                            # trend across 3 epochs answers "you undertrained it"
+                            # nearly as well as a better endpoint at 6 does.
+batch_size: 96              # 256 OOMs a 24 GB card at window 8; SIGReg wants the
+                            # batch as large as memory allows (see below)
+lr: 3.0e-4
+precision: bf16             # not fp16: SIGReg subtracts two near-1 numbers
+seed: 0
+
+stop_grad_target: true      # NOT optional. Without it MSE(zhat, z_target) is
+                            # minimised by making z_target constant, and the
+                            # latent collapses to rank 2 while gain_5step reads
+                            # 0.97. Measured, both directions.
+grad_checkpointing: true    # what buys batch 96 at window 8
+
+sigreg_lambda: 10.0         # 0.1 collapses (eff_dim 1.08), 1.0 collapses (1.89),
+                            # 10 holds and RISES (10.3 -> 21.1). Sweep below.
+aux_scale: 20.0             # the three lambdas below are ~100x too weak alone:
+                            # collapsing is worth 0.80 of pred_loss, they cost 0.008
+aux_y_lambda: 0.05
+aux_scroll_lambda: 0.05
+aux_alive_lambda: 0.02
+
+data:
+  path: /data               # the Modal Volume; 8000 episodes / 4.88M observations
+  target: latent
+  window_stride: 4          # at stride 1 an epoch is 27.8k steps and 12 epochs
+                            # is 49 h on an A10G. Stride 4 keeps every frame.
+  death_window_frac: 0.15   # deaths are 0.75% of frames and 45% of batches had
+                            # NONE, so the dead-in-5 head got no gradient on half
+                            # its steps and aux_dead caused 48% of loss variance
+
+# --- the gate ----------------------------------------------------------------
+# Scored by src/algo/jepa.py:evaluate(). Returns the min of the probe R2s
+# normalised against their thresholds, so min_score 1.0 means "every gate met".
+# The same probes also run BETWEEN EPOCHS inside train_jepa and raise GateAbort,
+# which is the "catch it at epoch 2 instead of after the planner fails" claim.
+eval:
+  metric: gate_score
+  min_score: 1.0
+  gate_grace_epochs: 2
+  gate_abort_y_r2: 0.10     # LeMario scored 0.188; below 0.10 the run is dead
+
+# fail closed on NaN/Inf and loss blow-up during fit
+guard:
+  safety: true
