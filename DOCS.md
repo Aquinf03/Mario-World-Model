@@ -1115,7 +1115,7 @@ The most useful result in this document is a negative one: a fix that worked per
 # Part V — Dataset
 
 Not stored in git — **27.4 GB** of compressed pixel shards. Download from
-[Aquinlabs/aq-mario-smb1](https://huggingface.co/datasets/Aquinlabs/aq-mario-smb1),
+[Aquinlabs/jepa-super-mario](https://huggingface.co/datasets/Aquinlabs/jepa-super-mario),
 or regenerate on the Modal volume `aqmario-data` with the Stage 1 commands in
 [`README.md`](README.md) (and Stage 1 in [Part VI](#part-vi--stage-log)).
 
@@ -1159,14 +1159,14 @@ emulator's reported `x_pos` of 87.
 
 ## Mirroring it somewhere downloadable
 
-Hosted on Hugging Face Datasets: [Aquinlabs/aq-mario-smb1](https://huggingface.co/datasets/Aquinlabs/aq-mario-smb1).
+Hosted on Hugging Face Datasets: [Aquinlabs/jepa-super-mario](https://huggingface.co/datasets/Aquinlabs/jepa-super-mario).
 
 To refresh that mirror from the Modal volume:
 
 ```bash
 modal volume get aqmario-data /random ./dump/random     # ~15 GB
 modal volume get aqmario-data /ppo    ./dump/ppo        # ~12 GB
-huggingface-cli upload Aquinlabs/aq-mario-smb1 ./dump --repo-type dataset
+huggingface-cli upload Aquinlabs/jepa-super-mario ./dump --repo-type dataset
 ```
 
 A single shard (~38 MB, 16 episodes) is enough to run every test and the dry-run path, and is the

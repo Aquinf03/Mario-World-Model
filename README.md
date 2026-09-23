@@ -151,7 +151,7 @@ scripts/
 ## Dataset
 
 **The 27.4 GB dataset is not in this repository.** It is hosted at
-[Aquinlabs/aq-mario-smb1](https://huggingface.co/datasets/Aquinlabs/aq-mario-smb1)
+[Aquinlabs/jepa-super-mario](https://huggingface.co/datasets/Aquinlabs/jepa-super-mario)
 and can also be regenerated on a Modal volume with the Stage 1 commands above
 (deterministic given the seeds in `recipe.yaml`).
 
@@ -162,7 +162,7 @@ and can also be regenerated on a Modal volume with the Stage 1 commands above
 | 27.4 GB compressed | 992 GB of raw pixels; NES artwork deflates 27× |
 | per frame | buttons held, and `world_x`, `world_y`, `scroll`, `power`, `dies_in_5` from console RAM |
 
-- Dataset: [Aquinlabs/aq-mario-smb1](https://huggingface.co/datasets/Aquinlabs/aq-mario-smb1)
+- Dataset: [Aquinlabs/jepa-super-mario](https://huggingface.co/datasets/Aquinlabs/jepa-super-mario)
 - Model: [Aquinlabs/aq-mario](https://huggingface.co/Aquinlabs/aq-mario)
 - Details: [`DOCS.md` Part V](DOCS.md#part-v--dataset)
 
